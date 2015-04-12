@@ -1,6 +1,9 @@
 import numpy as np
 import scipy as sp
 
+# Prior parameters
+eta = 0.01
+
 # Number of aspects
 A = 5
 
@@ -56,4 +59,117 @@ def predicted_rating(u, m):
     temp = np.diag((np.dot(M_a.T, theta_um)).reshape(K))
     r = v_u[u].dot(temp).dot(v_m[m].T) + b_o + b_u[u] + b_m[m]
     return r.sum()
+
+def sample_multiple_indices(p):
+    """
+    """
+    # TODO: Function to sample a joint distribution
+    pass
+
+def word_indices(vec):
+    """
+    """
+    for idx in vec.nonzero()[0]:
+        for i in xrange(int(vec[idx])):
+            yield idx
+
+class GibbsSampler:
+    """
+    """
+    def __init__(Y=5, Z=A, S=2):
+        """
+        """
+        self.Y = Y
+        self.Z = Z
+        self.S = S
+        self.M = M
+
+    def _initialize(self, matrix):
+        """
+        """
+        (self.n_reviews, self.vocab_size) = matrix.shape
+
+        # Number of times y occurs
+        self.cy = np.zeros(self.Y)
+        self.c = 0
+        # Number of times y occurs with w
+        self.cyw = np.zeros((self.Y, self.vocab_size))
+        # Number of times y occurs with s and w
+        self.cysw = np.zeros((self.Y, self.S, self.vocab_size))
+        # Number of times y occurs with s
+        self.cys = np.zeros((self.Y, self.S))
+        # Number of times y occurs with z and w
+        self.cyzw = np.zeros((self.Y, self.Z, self.vocab_size))
+        # Number of times y occurs with z
+        self.cyz = np.zeros((self.Y, self.Z))
+        # Number of times y occurs with m and w
+        self.cymw = np.zeros((self.Y, self.M, self.vocab_size))
+        # Number of times y occurs with m
+        self.cym = np.zeros((self.Y, self.M))
+        self.topics = {}
+
+        for r in xrange(self.n_reviews):
+            for i, w in enumerate(word_indices(matrix[r, :])):
+                # Choose a random assignment of y, z, w
+                (y, z, s) = (np.random.randint(self.Y), np.random.randint(self.Z), np.random.randint(self.S))
+                # Assign new values
+                self.cy[y] += 1
+                self.c += 1
+                self.cyw[y][w] += 1
+                self.cy[y][w] += 1
+                self.cysw[y][s][w] += 1
+                self.cys[y][s] += 1
+                self.cyzw[y][z][w] += 1
+                self.cyz[y][z] += 1
+                # TODO: Define m
+                self.cymw[y][m][w] += 1
+                self.cym[y][m] += 1
+                self.topics[(r, i)] = (y, z, w)
+
+    def _conditional_distribution(self, u, m, w):
+        """
+        """
+        # TODO: Function to return the conditional distribution for (y, z, s)
+        pass
+
+    def run(self, matrix, max_iter=50):
+        """
+        """
+        self._initialize(matrix)
+
+        for it in xrange(max_iter):
+            for r in xrange(self.n_reviews):
+                for i, w in enumerate(word_indices(matrix[r, :])):
+                    (y, z, s) = self.topics[(r, i)]
+                    # Exclude current assignment
+                    self.cy[y] -= 1
+                    self.c -= 1
+                    self.cyw[y][w] -= 1
+                    self.cy[y][w] -= 1
+                    self.cysw[y][s][w] -= 1
+                    self.cys[y][s] -= 1
+                    self.cyzw[y][z][w] -= 1
+                    self.cyz[y][z] -= 1
+                    # TODO: Define m
+                    self.cymw[y][m][w] -= 1
+                    self.cym[y][m] -= 1
+
+                    # Get next distribution
+                    # TODO: Define u
+                    p_z = self._conditional_distribution(u, m, w)
+                    (y, z, w) = sample_multiple_indices(p_z)
+
+                    # Assign new values
+                    self.cy[y] += 1
+                    self.c += 1
+                    self.cyw[y][w] += 1
+                    self.cy[y][w] += 1
+                    self.cysw[y][s][w] += 1
+                    self.cys[y][s] += 1
+                    self.cyzw[y][z][w] += 1
+                    self.cyz[y][z] += 1
+                    # TODO: Define m
+                    self.cymw[y][m][w] += 1
+                    self.cym[y][m] += 1
+                    self.topics[(r, i)] = (y, z, w)
 
