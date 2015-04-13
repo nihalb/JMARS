@@ -78,8 +78,18 @@ def aggregate_sentiment_probability(s, u, m):
 def sample_multiple_indices(p):
     """
     """
-    # TODO: Function to sample a joint distribution
-    pass
+    (Y, Z, S) = p.shape
+    dist = list()
+    for y in xrange(Y):
+        for z in xrange(Z):
+            for s in xrange(S):
+                dist.push_back(p[y,z,s])
+    index = np.random.multinomial(1,dist).argmax()
+    y = index / (Z * S)
+    rem = index % (Z * S)
+    z = rem / S
+    s = rem % S
+    return (y, z, s)
 
 def word_indices(vec):
     """
@@ -139,7 +149,7 @@ class GibbsSampler:
                 # TODO: Define m
                 self.cymw[y,m,w] += 1
                 self.cym[y,m] += 1
-                self.topics[(r, i)] = (y, z, w)
+                self.topics[(r, i)] = (y, z, s)
 
     def _conditional_distribution(self, u, m, w):
         """
@@ -211,7 +221,7 @@ class GibbsSampler:
                     # Get next distribution
                     # TODO: Define u
                     p_z = self._conditional_distribution(u, m, w)
-                    (y, z, w) = sample_multiple_indices(p_z)
+                    (y, z, s) = sample_multiple_indices(p_z)
 
                     # Assign new values
                     self.cy[y] += 1
@@ -225,4 +235,4 @@ class GibbsSampler:
                     # TODO: Define m
                     self.cymw[y,m,w] += 1
                     self.cym[y,m] += 1
-                    self.topics[(r, i)] = (y, z, w)
+                    self.topics[(r, i)] = (y, z, s)
