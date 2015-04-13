@@ -4,6 +4,9 @@ import scipy as sp
 # Prior parameters
 eta = 0.01
 
+# TODO: Get appropriate value for gamma
+gamma = 0.1
+
 # Number of aspects
 A = 5
 
@@ -60,6 +63,18 @@ def predicted_rating(u, m):
     r = v_u[u].dot(temp).dot(v_m[m].T) + b_o + b_u[u] + b_m[m]
     return r.sum()
 
+def aspect_sentiment_probability(s, u, m, a):
+    """
+    """
+    # TODO: Code this
+    return 0
+
+def aggregate_sentiment_probability(s, u, m):
+    """
+    """
+    # TODO: Code this
+    return 0
+
 def sample_multiple_indices(p):
     """
     """
@@ -115,22 +130,61 @@ class GibbsSampler:
                 # Assign new values
                 self.cy[y] += 1
                 self.c += 1
-                self.cyw[y][w] += 1
-                self.cy[y][w] += 1
-                self.cysw[y][s][w] += 1
-                self.cys[y][s] += 1
-                self.cyzw[y][z][w] += 1
-                self.cyz[y][z] += 1
+                self.cyw[y,w] += 1
+                self.cy[y,w] += 1
+                self.cysw[y,s,w] += 1
+                self.cys[y,s] += 1
+                self.cyzw[y,z,w] += 1
+                self.cyz[y,z] += 1
                 # TODO: Define m
-                self.cymw[y][m][w] += 1
-                self.cym[y][m] += 1
+                self.cymw[y,m,w] += 1
+                self.cym[y,m] += 1
                 self.topics[(r, i)] = (y, z, w)
 
     def _conditional_distribution(self, u, m, w):
         """
         """
-        # TODO: Function to return the conditional distribution for (y, z, s)
-        pass
+        # TODO: Add correct values of eta, gamma
+        p_z = np.zeros((self.Y, self.Z, self.S))
+
+        # y = 0
+        for z in xrange(self.Z):
+            for s in xrange(self.S):
+                p_z[0,z,s] = (cy[0] + gamma) / (c + 5 * gamma)
+                p_z[0,z,s] = (p_z[0,z,s] * (cyw[0,w] + eta)) / (cy[0] + eta)
+
+        # y = 1
+        for z in xrange(self.Z):
+            for s in xrange(self.S):
+                p_z[1,z,s] = (cy[1] + gamma) / (c + 5 * gamma)
+                p_z[1,z,s] = (p_z[1,z,s] * (cysw[1,s,w] + eta)) / (cys[1,s] + eta)
+                p_z[1,z,s] = p_z[1,z,s] * aggregate_sentiment_probability(s,u,m)
+
+        # y = 2
+        for z in xrange(self.Z):
+            for s in xrange(self.S):
+                p_z[2,z,s] = (cy[2] + gamma) / (c + 5 * gamma)
+                p_z[2,z,s] = (p_z[2,z,s] * (cyzw[2,z,w] + eta)) / (cyz[2,z] + eta)
+                p_z[2,z,s] = p_z[2,z,s] * (joint_aspect(u, m)[z])
+                p_z[2,z,s] = p_z[2,z,s] * aspect_sentiment_probability(s,u,m,z)
+
+        # y = 3
+        for z in xrange(self.Z):
+            for s in xrange(self.S):
+                p_z[3,z,s] = (cy[3] + gamma) / (c + 5 * gamma)
+                p_z[3,z,s] = (p_z[3,z,s] * (cyzw[3,z,w] + eta)) / (cyz[3,z] + eta)
+                p_z[3,z,s] = p_z[3,z,s] * (joint_aspect(u,m)[z])
+
+        # y = 4
+        for z in xrange(self.Z):
+            for s in xrange(self.S):
+                p_z[4,z,s] = (cy[4] + gamma) / (c + 5 * gamma)
+                p_z[4,z,s] = (p_z[4,z,s] * (cymw[y,m,w] + eta)) / (cym[y,m] + eta)
+
+        # Normalize
+        p_z = p_z / sum(p_z)
+
+        return p_z
 
     def run(self, matrix, max_iter=50):
         """
@@ -144,15 +198,15 @@ class GibbsSampler:
                     # Exclude current assignment
                     self.cy[y] -= 1
                     self.c -= 1
-                    self.cyw[y][w] -= 1
-                    self.cy[y][w] -= 1
-                    self.cysw[y][s][w] -= 1
-                    self.cys[y][s] -= 1
-                    self.cyzw[y][z][w] -= 1
-                    self.cyz[y][z] -= 1
+                    self.cyw[y,w] -= 1
+                    self.cy[y,w] -= 1
+                    self.cysw[y,s,w] -= 1
+                    self.cys[y,s] -= 1
+                    self.cyzw[y,z,w] -= 1
+                    self.cyz[y,z] -= 1
                     # TODO: Define m
-                    self.cymw[y][m][w] -= 1
-                    self.cym[y][m] -= 1
+                    self.cymw[y,m,w] -= 1
+                    self.cym[y,m] -= 1
 
                     # Get next distribution
                     # TODO: Define u
@@ -162,14 +216,13 @@ class GibbsSampler:
                     # Assign new values
                     self.cy[y] += 1
                     self.c += 1
-                    self.cyw[y][w] += 1
-                    self.cy[y][w] += 1
-                    self.cysw[y][s][w] += 1
-                    self.cys[y][s] += 1
-                    self.cyzw[y][z][w] += 1
-                    self.cyz[y][z] += 1
+                    self.cyw[y,w] += 1
+                    self.cy[y,w] += 1
+                    self.cysw[y,s,w] += 1
+                    self.cys[y,s] += 1
+                    self.cyzw[y,z,w] += 1
+                    self.cyz[y,z] += 1
                     # TODO: Define m
-                    self.cymw[y][m][w] += 1
-                    self.cym[y][m] += 1
+                    self.cymw[y,m,w] += 1
+                    self.cym[y,m] += 1
                     self.topics[(r, i)] = (y, z, w)
-
