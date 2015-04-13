@@ -179,7 +179,7 @@ class GibbsSampler:
         for z in xrange(self.Z):
             for s in xrange(self.S):
                 p_z[4,z,s] = (cy[4] + gamma) / (c + 5 * gamma)
-                p_z[4,z,s] = (p_z[4,z,s] * (cymw[y,m,w] + eta)) / (cym[y,m] + eta)
+                p_z[4,z,s] = (p_z[4,z,s] * (cymw[4,m,w] + eta)) / (cym[4,m] + eta)
 
         # Normalize
         p_z = p_z / sum(p_z)
