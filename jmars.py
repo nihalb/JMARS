@@ -1,6 +1,6 @@
 import numpy as np
 import scipy as sp
-for scipy import scipy.optimize as op
+from scipy import optimize as op
 from numpy import linalg as LA
 import numpy.matlib
 
@@ -47,6 +47,21 @@ b_o = 0
 
 # Scaling Matrix
 M_a = np.zeros((A, K))
+
+#Matrices N
+Nums = np.zeros((U,M,2))
+Numas = np.zeros((U,M,A,2))
+Numa = np.zeros((U,M,A))
+
+#epsilon
+epsilon = 5
+
+#Sentiment
+c = 1
+b = 1
+
+#rating matrix
+rating_matrix = np.zeros((U,M))
 
 # Joint aspect distribution
 def joint_aspect(u, m):
@@ -266,10 +281,11 @@ def func(params, *args):
     loss1 = epsilon*np.square(rating_matrix - r_hat)
     loss2 = np.multiply(Nums[:,:,0], np.log(1 + np.exp(-1*(c*r_hat - b)))) + np.multiply(Nums[:,:,1], np.log(1 + np.exp((c*r_hat - b))))
     
-    loss3 = 0
-    for a in range(A):
-        ruma = np.dot(np.dot(v_u, np.diag(M[a])), v_m.T) + b_o*np.ones((U,M)) + np.matlib.repmat(b_u,1,M) + np.matlib.repmat(b_m.T,U,1)
-        loss3 = loss3 + np.multiply(Nums[:,:,a,0], np.log(1 + np.exp(-1*(c*ruma - b)))) + np.multiply(Nums[:,:,a,1], np.log(1 + np.exp((c*ruma - b))))
+    loss3 = np.zeros((U,M))
+    for i in range(A):
+        #print np.diag(M_a[i])
+        ruma = np.dot(np.dot(v_u, np.diag(M_a[i])), v_m.T) + b_o*np.ones((U,M)) + np.matlib.repmat(b_u,1,M) + np.matlib.repmat(b_m.T,U,1)
+        loss3 = loss3 + np.multiply(Numas[:,:,i,0], np.log(1 + np.exp(-1*(c*ruma - b)))) + np.multiply(Numas[:,:,i,1], np.log(1 + np.exp((c*ruma - b))))
 
     theta_uma = np.exp(np.tile(theta_u.reshape(U,1,A), (1,M,1)) + np.tile(theta_u.reshape(1,M,A), (U,1,1)))
     loss4 = theta_uma / (theta_uma.sum())
@@ -280,6 +296,12 @@ def func(params, *args):
     total_loss = loss.sum()
 
     return total_loss
+
+
+params = [v_u, b_u, theta_u, v_m, b_m, theta_m, M_a]
+args = [y,z,s,Nums,Numas,Numa]
+
+print func(params, *args)
 
 
 
