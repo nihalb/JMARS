@@ -1,5 +1,8 @@
 import numpy as np
 import scipy as sp
+for scipy import scipy.optimize as op
+from numpy import linalg as LA
+import numpy.matlib
 
 # Prior parameters
 eta = 0.01
@@ -236,3 +239,53 @@ class GibbsSampler:
                     self.cymw[y,m,w] += 1
                     self.cym[y,m] += 1
                     self.topics[(r, i)] = (y, z, s)
+
+
+def func(params, *args):
+    y = args[0]
+    z = args[1]
+    s = args[2]
+    Nums = args[3]
+    Numas = args[4]
+    Numa = args[5]
+
+    v_u = params[0]
+    b_u = params[1]
+    theta_u = params[2]
+
+    v_m = params[3]
+    b_m = params[4]
+    theta_m = params[5]
+
+    M_a = params[6]
+
+    M_sum = np.diag(M_a.sum(0))
+
+    r_hat =  np.dot(np.dot(v_u, M_sum), v_m.T) + b_o*np.ones((U,M)) + np.matlib.repmat(b_u,1,M) + np.matlib.repmat(b_m.T,U,1)
+
+    loss1 = epsilon*np.square(rating_matrix - r_hat)
+    loss2 = np.multiply(Nums[:,:,0], np.log(1 + np.exp(-1*(c*r_hat - b)))) + np.multiply(Nums[:,:,1], np.log(1 + np.exp((c*r_hat - b))))
+    
+    loss3 = 0
+    for a in range(A):
+        ruma = np.dot(np.dot(v_u, np.diag(M[a])), v_m.T) + b_o*np.ones((U,M)) + np.matlib.repmat(b_u,1,M) + np.matlib.repmat(b_m.T,U,1)
+        loss3 = loss3 + np.multiply(Nums[:,:,a,0], np.log(1 + np.exp(-1*(c*ruma - b)))) + np.multiply(Nums[:,:,a,1], np.log(1 + np.exp((c*ruma - b))))
+
+    theta_uma = np.exp(np.tile(theta_u.reshape(U,1,A), (1,M,1)) + np.tile(theta_u.reshape(1,M,A), (U,1,1)))
+    loss4 = theta_uma / (theta_uma.sum())
+    loss4 = (np.multiply(Numa, np.log(loss4))).sum(2)
+
+    loss = loss1 + loss2 + loss3 - loss4
+    loss = np.multiply(loss, (rating_matrix > 0))
+    total_loss = loss.sum()
+
+    return total_loss
+
+
+
+
+
+
+
+
+
