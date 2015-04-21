@@ -60,6 +60,9 @@ epsilon = 5
 c = 1
 b = 1
 
+#Counter
+counter = 1
+
 #rating matrix
 rating_matrix = np.zeros((U,M))
 
@@ -257,6 +260,9 @@ class GibbsSampler:
 
 
 def func(params, *args):
+    global counter
+    print counter
+    counter += 1
     y = args[0]
     z = args[1]
     s = args[2]
@@ -303,9 +309,9 @@ args = (y,z,s,Nums,Numas,Numa)
 #initial_values = np.array([v_u, b_u, theta_u, v_m, b_m, theta_m, M_a], dtype=object)
 initial_values = numpy.concatenate((v_u.flatten('F'), b_u.flatten('F'), theta_u.flatten('F'), v_m.flatten('F'), b_m.flatten('F'), theta_m.flatten('F'), M_a.flatten('F')))
 
-print func(initial_values, *args)
+#print func(initial_values, *args)
 
-x,f,d = fmin_l_bfgs_b(func, x0=initial_values, args=args, approx_grad=True)
+x,f,d = fmin_l_bfgs_b(func, x0=initial_values, args=args, approx_grad=True, maxfun=1, maxiter=1)
 
 print x
 print f
