@@ -1,6 +1,6 @@
 import numpy as np
 import scipy as sp
-from scipy import optimize as op
+from scipy.optimize import fmin_l_bfgs_b
 from numpy import linalg as LA
 import numpy.matlib
 
@@ -264,15 +264,15 @@ def func(params, *args):
     Numas = args[4]
     Numa = args[5]
 
-    v_u = params[0]
-    b_u = params[1]
-    theta_u = params[2]
+    v_u = params[:(U*K)].reshape((U,K), order='F')
+    b_u = params[(U*K):(U*K + U)].reshape((U,1), order='F')
+    theta_u = params[(U*K + U):(U*K + U + U*A)].reshape((U,A), order='F')
 
-    v_m = params[3]
-    b_m = params[4]
-    theta_m = params[5]
+    v_m = params[(U*K + U + U*A):(U*K + U + U*A + M*K)].reshape((M,K), order='F')
+    b_m = params[(U*K + U + U*A + M*K):(U*K + U + U*A + M*K + M)].reshape((M,1), order='F')
+    theta_m = params[(U*K + U + U*A + M*K + M):(U*K + U + U*A + M*K + M + M*A)].reshape((M,A), order='F')
 
-    M_a = params[6]
+    M_a = params[(U*K + U + U*A + M*K + M + M*A):].reshape((A,K), order='F')
 
     M_sum = np.diag(M_a.sum(0))
 
@@ -298,10 +298,18 @@ def func(params, *args):
     return total_loss
 
 
-params = [v_u, b_u, theta_u, v_m, b_m, theta_m, M_a]
-args = [y,z,s,Nums,Numas,Numa]
+#params = [v_u, b_u, theta_u, v_m, b_m, theta_m, M_a]
+args = (y,z,s,Nums,Numas,Numa)
+#initial_values = np.array([v_u, b_u, theta_u, v_m, b_m, theta_m, M_a], dtype=object)
+initial_values = numpy.concatenate((v_u.flatten('F'), b_u.flatten('F'), theta_u.flatten('F'), v_m.flatten('F'), b_m.flatten('F'), theta_m.flatten('F'), M_a.flatten('F')))
 
-print func(params, *args)
+print func(initial_values, *args)
+
+x,f,d = fmin_l_bfgs_b(func, x0=initial_values, args=args, approx_grad=True)
+
+print x
+print f
+print d
 
 
 
