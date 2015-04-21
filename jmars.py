@@ -17,9 +17,9 @@ A = 5
 K = 5
 
 # Number of users and movies
-U = 1000
-M = 1000
-I = 100
+U = 1#1000
+M = 1#1000
+I = 1#100
 
 # Hidden variables
 
