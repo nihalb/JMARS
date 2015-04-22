@@ -70,18 +70,26 @@ def fprime(params, *args):
 
     M_sum = np.diag(M_a.sum(0))
 
+    r_hat =  np.dot(np.dot(v_u, M_sum), v_m.T) + b_o*np.ones((U,M)) + np.matlib.repmat(b_u,1,M) + np.matlib.repmat(b_m.T,U,1)
+    theta_uma = np.exp(np.tile(theta_u.reshape(U,1,A), (1,M,1)) + np.tile(theta_u.reshape(1,M,A), (U,1,1)))
+    theta_uma = theta_uma / (theta_uma.sum())
+
     #partial derivatives of ruma
-    grad_ruma_vu = np.zeros((U,M,A,K))
+    '''grad_ruma_vu = np.zeros((U,M,A,K))
     grad_ruma_vm = np.zeros((M,U,A,K))
     for i in range(A):
         grad_ruma_vu[:,:,i,:] = np.tile(np.multiply(np.matlib.repmat(M_a[i],M,1), v_m).reshape(M,1,K), (U,1,1,1))
         grad_ruma_vm[:,:,i,:] = np.tile(np.multiply(np.matlib.repmat(M_a[i],U,1), v_u).reshape(U,1,K), (M,1,1,1))
 
-    grad_ruma_bu = 1
-    grad_ruma_bm = 1
-    grad_ruma_thetaua = 0
-    grad_ruma_thetama = 0
-    grad_ruma_mak =    np.tile(np.multiply(np.matlib.repmat(M_a[i],U,1), v_u).reshape(U,1,K), (M,1,1,1))
+    grad_ruma_bu = np.ones((U,M,A,K))
+    grad_ruma_bm = np.ones((U,M,A,K))
+    grad_ruma_thetaua = np.zeros((U,M,A,K))
+    grad_ruma_thetama = np.zeros((U,M,A,K))
+
+    for i in range(K):
+        grad_ruma_mak[:,:,:,i] =  v_u[:]  np.tile(np.multiply(np.matlib.repmat(M_a[i],U,1), v_u).reshape(U,1,K), (M,1,1,1))'''
+
+    grad_vu = -2*epsilon*np.dot(np.multiply((rating_matrix - r_hat), (rating_matrix > 0)), np.dot(theta_uma, M_a))
 
 
 
