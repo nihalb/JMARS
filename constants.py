@@ -1,3 +1,5 @@
+import numpy as np
+
 # Prior parameters
 eta = 0.01
 
