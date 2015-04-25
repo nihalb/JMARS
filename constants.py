@@ -32,13 +32,16 @@ I = 100
 # Hidden variables
 
 # Switching variable y
-y = np.zeros((U, M, I))
+y = np.random.multinomial(1000,[1.0/I]*I,(U,M)) / 1000
+#y = np.zeros((U, M, I))
 
 # Topic variable z
-z = np.zeros((U, M, I))
+z = np.random.multinomial(1000,[1.0/I]*I,(U,M)) / 1000
+#z = np.zeros((U, M, I))
 
 # Sentiment variable s
-s = np.zeros((U, M, I))
+s = np.random.multinomial(1000,[1.0/I]*I,(U,M)) / 1000
+#s = np.zeros((U, M, I))
 
 # User
 v_u = np.random.normal(0,sigma_u,(U, K))      # Latent factor vector
