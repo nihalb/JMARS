@@ -70,9 +70,25 @@ def fprime(params, *args):
 
     M_sum = np.diag(M_a.sum(0))
 
+    grad_vu = np.zeros((v_u.shape))
+    grad_bu = np.zeros((b_u.shape))
+    grad_thetau = np.zeros((theta_u.shape))
+
+    grad_vm = np.zeros((v_m.shape))
+    grad_bm = np.zeros((b_m.shape))
+    grad_thetam = np.zeros((theta_m.shape))
+
+    grad_Ma = np.zeros((M_a.shape))
+
     r_hat =  np.dot(np.dot(v_u, M_sum), v_m.T) + b_o*np.ones((U,M)) + np.matlib.repmat(b_u,1,M) + np.matlib.repmat(b_m.T,U,1)
     theta_uma = np.exp(np.tile(theta_u.reshape(U,1,A), (1,M,1)) + np.tile(theta_u.reshape(1,M,A), (U,1,1)))
     theta_uma = theta_uma / (theta_uma.sum())
+
+    for u in range(U):
+        for m in range(M):
+            if rating_matrix[u][m] != 0:
+                ruma = 
+
 
     #partial derivatives of ruma
     '''grad_ruma_vu = np.zeros((U,M,A,K))
@@ -87,19 +103,19 @@ def fprime(params, *args):
     grad_ruma_thetama = np.zeros((U,M,A,K))
 
     for i in range(K):
-        grad_ruma_mak[:,:,:,i] =  v_u[:]  np.tile(np.multiply(np.matlib.repmat(M_a[i],U,1), v_u).reshape(U,1,K), (M,1,1,1))'''
+        grad_ruma_mak[:,:,:,i] =  v_u[:]  np.tile(np.multiply(np.matlib.repmat(M_a[i],U,1), v_u).reshape(U,1,K), (M,1,1,1))
 
-    grad_vu = -2*epsilon*np.dot(np.multiply((rating_matrix - r_hat), (rating_matrix > 0)), np.dot(theta_uma, M_a))
+    grad_vu = -2*epsilon*np.dot(np.multiply((rating_matrix - r_hat), (rating_matrix > 0)), np.dot(theta_uma, M_a))'''
 
 
 def optimizer():
 
     #params = [v_u, b_u, theta_u, v_m, b_m, theta_m, M_a]
-    args = (y,z,s,Nums,Numas,Numa)
     #initial_values = np.array([v_u, b_u, theta_u, v_m, b_m, theta_m, M_a], dtype=object)
-    initial_values = numpy.concatenate((v_u.flatten('F'), b_u.flatten('F'), theta_u.flatten('F'), v_m.flatten('F'), b_m.flatten('F'), theta_m.flatten('F'), M_a.flatten('F')))
-
     #print func(initial_values, *args)
+
+    args = (y,z,s,Nums,Numas,Numa)
+    initial_values = numpy.concatenate((v_u.flatten('F'), b_u.flatten('F'), theta_u.flatten('F'), v_m.flatten('F'), b_m.flatten('F'), theta_m.flatten('F'), M_a.flatten('F')))    
 
     x,f,d = fmin_l_bfgs_b(func, x0=initial_values, args=args, approx_grad=True, maxfun=1, maxiter=1)
 
