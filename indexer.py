@@ -6,6 +6,7 @@ import numpy as np
 
 def clean_review(review):
     """
+    Removes punctuations, stopwords and returns an array of words
     """
     review = review.replace('!', ' ')
     review = review.replace('?', ' ')
@@ -18,14 +19,17 @@ def clean_review(review):
 
 class Indexer:
     """
+    Class to load imdb data from file and obtain relevant data structures
     """
     def __init__(self):
         """
+        Constructor
         """
         self.reviews = list()
 
     def read_file(self, filename):
         """
+        Reads reviews from a specified file
         """
         f = open(filename)
         data = f.read()
@@ -33,6 +37,8 @@ class Indexer:
 
     def get_mappings(self):
         """
+        Returns relevant data like vocab size, user list, etc after
+        processing review data
         """
         user_dict = dict()
         movie_dict = dict()
