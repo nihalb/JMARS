@@ -3,7 +3,7 @@ import numpy as np
 # Prior parameters
 eta = 0.01
 
-# TODO: Get appropriate value for following
+# Other constants
 gamma = 0.1
 sigma_b0 = 0.1
 sigma_u = 0.1
