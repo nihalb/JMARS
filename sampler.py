@@ -29,9 +29,9 @@ def predicted_aspect_rating(u, m, a):
 def aspect_sentiment_probability(s, u, m, a):
     """
     """
-    # TODO: Code this
-    
-    return 0
+    ruma = predicted_aspect_rating(u,m,a)
+    prob_suma = 1.0 / (1.0 + np.exp(-s*(c*ruma - b)))
+    return prob_suma
 
 def aggregate_sentiment_probability(s, u, m):
     """
