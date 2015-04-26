@@ -23,6 +23,6 @@ optimize.py - Contains code to run optimization needed in the M-Step
 
 sampler.py - Contains code to run Gibbs Sampling needed in the E-Step
 
-jmars.py - Contains main code which uses the other modules and runs Gibbs Expectation-Maximization
+jmars.py - Contains main code which uses the other modules and runs Gibbs Expectation-Maximization to output predicted ratings
 
 Github Link: https://github.com/nihalb/JMARS
