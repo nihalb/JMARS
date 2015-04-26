@@ -66,7 +66,7 @@ def word_indices(vec):
 class GibbsSampler:
     """
     """
-    def __init__(Y, Z, S):
+    def __init__(self, Y, Z, S):
         """
         """
         self.Y = Y
