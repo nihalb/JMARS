@@ -1,5 +1,20 @@
 import json
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 import numpy as np
+
+def clean_review(review):
+    """
+    """
+    review = review.replace('!', ' ')
+    review = review.replace('?', ' ')
+    review = review.replace(':', ' ')
+    review = review.replace(';', ' ')
+    review = review.replace(',', ' ')
+    tokens = word_tokenize(review)
+    tokens = [w for w in tokens if w not in stopwords.words('english')]
+    return tokens
 
 class Indexer:
     """
@@ -47,4 +62,24 @@ class Indexer:
             u_idx = user_dict[user]
             m_idx = movie_dict[movie]
             rating_matrix[u_idx][m_idx] = review['rating']
-        return (user_list, movie_list, rating_matrix)
+        dictionary = dict()
+        review_matrix = list()
+        for review in self.reviews:
+            temp = review['review']
+            #arr = clean_review(temp)
+            arr = temp.split()
+            review_matrix.append(arr)
+            for ar in arr:
+                ar = ar.strip()
+                if ar not in dictionary:
+                    dictionary[ar] = 1 
+        vocab_size = len(dictionary.keys())
+        review_matrix = np.array(review_matrix)
+        review_map = list()
+        for review in self.reviews:
+            review_map.append(
+            {
+                'user' : review['user'],
+                'movie' : review['movie']
+            })
+        return (vocab_size, user_list, movie_list, rating_matrix, review_matrix, review_map)
