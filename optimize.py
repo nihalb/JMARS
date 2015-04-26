@@ -50,7 +50,7 @@ def func(params, *args):
 
     return total_loss
 
-def fprime(params, *args):
+'''def fprime(params, *args):
     y = args[0]
     z = args[1]
     s = args[2]
@@ -91,7 +91,7 @@ def fprime(params, *args):
 
 
     #partial derivatives of ruma
-    '''grad_ruma_vu = np.zeros((U,M,A,K))
+    grad_ruma_vu = np.zeros((U,M,A,K))
     grad_ruma_vm = np.zeros((M,U,A,K))
     for i in range(A):
         grad_ruma_vu[:,:,i,:] = np.tile(np.multiply(np.matlib.repmat(M_a[i],M,1), v_m).reshape(M,1,K), (U,1,1,1))
@@ -119,9 +119,9 @@ def optimizer():
 
     x,f,d = fmin_l_bfgs_b(func, x0=initial_values, args=args, approx_grad=True, maxfun=1, maxiter=1)
 
-    print x
-    print f
-    print d
+    #print x
+    #print f
+    #print d
 
     return x,f,d
 
