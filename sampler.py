@@ -4,6 +4,7 @@ import numpy as np
 # Joint aspect distribution
 def joint_aspect(u, m):
     """
+    Returns the joint aspect distribution
     """
     u_a = theta_u[u].T
     m_a = theta_m[m].T
@@ -13,6 +14,7 @@ def joint_aspect(u, m):
 
 def predicted_rating(u, m):
     """
+    Computes the predicted rating for user u on movie m
     """
     theta_um = joint_aspect(u, m)
     temp = np.diag((np.dot(M_a.T, theta_um)).reshape(K))
@@ -21,6 +23,7 @@ def predicted_rating(u, m):
 
 def predicted_aspect_rating(u, m, a):
     """
+    Computes the predicted rating for user u on movie m and aspect a
     """
     temp = np.diag(M_a[a])
     r = v_u[u].dot(temp).dot(v_m[m].T) + b_o + b_u[u] + b_m[m]
@@ -28,6 +31,8 @@ def predicted_aspect_rating(u, m, a):
 
 def aspect_sentiment_probability(s, u, m, a):
     """
+    Computes the probability for a sentiment s on aspect a 
+    for user u on movie m
     """
     ruma = predicted_aspect_rating(u,m,a)
     prob_suma = 1.0 / (1.0 + np.exp(-s*(c*ruma - b)))
@@ -35,6 +40,8 @@ def aspect_sentiment_probability(s, u, m, a):
 
 def aggregate_sentiment_probability(s, u, m):
     """
+    Computes the probability for aggregate sentiment s 
+    for user u and movie m
     """
     rum = predicted_rating(u,m)
     prob_sum = 1.0 / (1.0 + np.exp(-s*(c*rum - b)))
@@ -42,6 +49,7 @@ def aggregate_sentiment_probability(s, u, m):
 
 def sample_multinomial(w):
     """
+    Returns the index of a sample from a multinomial distribution
     """
     x = np.random.uniform(0,1)
     for i,v in enumerate(np.cumsum(w)):
@@ -50,6 +58,7 @@ def sample_multinomial(w):
 
 def sample_multiple_indices(p):
     """
+    Samples indices from a joint probability distribution
     """
     (Y, Z, S) = p.shape
     dist = list()
@@ -66,6 +75,7 @@ def sample_multiple_indices(p):
 
 def word_indices(vec):
     """
+    Returns non-zero entries of vec one at a time
     """
     for idx in vec.nonzero()[0]:
         for i in xrange(int(vec[idx])):
@@ -73,9 +83,11 @@ def word_indices(vec):
 
 class GibbsSampler:
     """
+    Class to handle Gibbs Sampling
     """
     def __init__(self, Y, Z, S):
         """
+        Constructor
         """
         self.Y = Y
         self.Z = Z
@@ -84,6 +96,7 @@ class GibbsSampler:
 
     def _initialize(self, matrix):
         """
+        Initialize all variables needed in the run step
         """
         (self.n_reviews, self.vocab_size) = matrix.shape
 
@@ -127,6 +140,7 @@ class GibbsSampler:
 
     def _conditional_distribution(self, u, m, w):
         """
+        Returns the CPD for word w in the review by user u for movie m
         """
         p_z = np.zeros((self.Y, self.Z, self.S))
         # y = 0
@@ -170,6 +184,7 @@ class GibbsSampler:
 
     def run(self, matrix, max_iter=20):
         """
+        Perform sampling max_iter times
         """
         self._initialize(matrix)
 
@@ -212,5 +227,3 @@ class GibbsSampler:
                     self.cymw[y,m,w] += 1
                     self.cym[y,m] += 1
                     self.topics[(r, i)] = (y, z, s)
-
-
