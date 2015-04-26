@@ -40,6 +40,14 @@ def aggregate_sentiment_probability(s, u, m):
     prob_sum = 1.0 / (1.0 + np.exp(-s*(c*rum - b)))
     return prob_sum
 
+def sample_multinomial(w):
+    """
+    """
+    x = np.random.uniform(0,1)
+    for i,v in enumerate(np.cumsum(w)):
+        if x < v: return i
+    return len(w)-1
+
 def sample_multiple_indices(p):
     """
     """
@@ -48,8 +56,8 @@ def sample_multiple_indices(p):
     for y in xrange(Y):
         for z in xrange(Z):
             for s in xrange(S):
-                dist.push_back(p[y,z,s])
-    index = np.random.multinomial(1,dist).argmax()
+                dist.append(p[y,z,s])
+    index = sample_multinomial(dist)
     y = index / (Z * S)
     rem = index % (Z * S)
     z = rem / S
@@ -112,6 +120,7 @@ class GibbsSampler:
                 self.cyzw[y,z,w] += 1
                 self.cyz[y,z] += 1
                 # TODO: Define m
+                m = np.random.randint(self.M)
                 self.cymw[y,m,w] += 1
                 self.cym[y,m] += 1
                 self.topics[(r, i)] = (y, z, s)
@@ -120,52 +129,52 @@ class GibbsSampler:
         """
         """
         p_z = np.zeros((self.Y, self.Z, self.S))
-
         # y = 0
         for z in xrange(self.Z):
             for s in xrange(self.S):
-                p_z[0,z,s] = (cy[0] + gamma) / (c + 5 * gamma)
-                p_z[0,z,s] = (p_z[0,z,s] * (cyw[0,w] + eta)) / (cy[0] + eta)
+                p_z[0,z,s] = (self.cy[0] + gamma) / (self.c + 5 * gamma)
+                p_z[0,z,s] = (p_z[0,z,s] * (self.cyw[0,w] + eta)) / (self.cy[0] + eta)
 
         # y = 1
         for z in xrange(self.Z):
             for s in xrange(self.S):
-                p_z[1,z,s] = (cy[1] + gamma) / (c + 5 * gamma)
-                p_z[1,z,s] = (p_z[1,z,s] * (cysw[1,s,w] + eta)) / (cys[1,s] + eta)
+                p_z[1,z,s] = (self.cy[1] + gamma) / (self.c + 5 * gamma)
+                p_z[1,z,s] = (p_z[1,z,s] * (self.cysw[1,s,w] + eta)) / (self.cys[1,s] + eta)
                 p_z[1,z,s] = p_z[1,z,s] * aggregate_sentiment_probability(s,u,m)
 
         # y = 2
         for z in xrange(self.Z):
             for s in xrange(self.S):
-                p_z[2,z,s] = (cy[2] + gamma) / (c + 5 * gamma)
-                p_z[2,z,s] = (p_z[2,z,s] * (cyzw[2,z,w] + eta)) / (cyz[2,z] + eta)
+                p_z[2,z,s] = (self.cy[2] + gamma) / (self.c + 5 * gamma)
+                p_z[2,z,s] = (p_z[2,z,s] * (self.cyzw[2,z,w] + eta)) / (self.cyz[2,z] + eta)
                 p_z[2,z,s] = p_z[2,z,s] * (joint_aspect(u, m)[z])
                 p_z[2,z,s] = p_z[2,z,s] * aspect_sentiment_probability(s,u,m,z)
 
         # y = 3
         for z in xrange(self.Z):
             for s in xrange(self.S):
-                p_z[3,z,s] = (cy[3] + gamma) / (c + 5 * gamma)
-                p_z[3,z,s] = (p_z[3,z,s] * (cyzw[3,z,w] + eta)) / (cyz[3,z] + eta)
+                p_z[3,z,s] = (self.cy[3] + gamma) / (self.c + 5 * gamma)
+                p_z[3,z,s] = (p_z[3,z,s] * (self.cyzw[3,z,w] + eta)) / (self.cyz[3,z] + eta)
                 p_z[3,z,s] = p_z[3,z,s] * (joint_aspect(u,m)[z])
 
         # y = 4
         for z in xrange(self.Z):
             for s in xrange(self.S):
-                p_z[4,z,s] = (cy[4] + gamma) / (c + 5 * gamma)
-                p_z[4,z,s] = (p_z[4,z,s] * (cymw[4,m,w] + eta)) / (cym[4,m] + eta)
+                p_z[4,z,s] = (self.cy[4] + gamma) / (self.c + 5 * gamma)
+                p_z[4,z,s] = (p_z[4,z,s] * (self.cymw[4,m,w] + eta)) / (self.cym[4,m] + eta)
 
         # Normalize
-        p_z = p_z / sum(p_z)
+        p_z = p_z / p_z.sum()
 
         return p_z
 
-    def run(self, matrix, max_iter=50):
+    def run(self, matrix, max_iter=20):
         """
         """
         self._initialize(matrix)
 
         for it in xrange(max_iter):
+            print 'Gibbs Sampling Iteration: %d' % it
             for r in xrange(self.n_reviews):
                 for i, w in enumerate(word_indices(matrix[r, :])):
                     (y, z, s) = self.topics[(r, i)]
@@ -179,11 +188,13 @@ class GibbsSampler:
                     self.cyzw[y,z,w] -= 1
                     self.cyz[y,z] -= 1
                     # TODO: Define m
+                    m = np.random.randint(self.M)
                     self.cymw[y,m,w] -= 1
                     self.cym[y,m] -= 1
 
                     # Get next distribution
                     # TODO: Define u
+                    u = np.random.randint(1000)
                     p_z = self._conditional_distribution(u, m, w)
                     (y, z, s) = sample_multiple_indices(p_z)
 
@@ -197,6 +208,7 @@ class GibbsSampler:
                     self.cyzw[y,z,w] += 1
                     self.cyz[y,z] += 1
                     # TODO: Define m
+                    m = np.random.randint(self.M)
                     self.cymw[y,m,w] += 1
                     self.cym[y,m] += 1
                     self.topics[(r, i)] = (y, z, s)

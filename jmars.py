@@ -21,7 +21,7 @@ def main():
 
     # Read 
     imdb = Indexer()
-    imdb_file = 'data/data_t.json'
+    imdb_file = 'data/data.json'
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
     logging.info('Reading file %s' % imdb_file)
     imdb.read_file(imdb_file)
