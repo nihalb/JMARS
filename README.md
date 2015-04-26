@@ -12,3 +12,5 @@ and store in a folder named 'data'
 Then run jmars.py as a python file:
 
 python jmars.py
+
+Github Link: https://github.com/nihalb/JMARS
