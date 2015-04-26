@@ -7,6 +7,9 @@ from numpy import linalg as LA
 import numpy.matlib
 
 def func(params, *args):
+    """
+    Computes the value of the objective function required for gradient descent
+    """
     global counter
     print "Learning Paramater " + str(counter) + "..."
     counter += 1
@@ -109,6 +112,9 @@ def func(params, *args):
 
 
 def optimizer():
+    """
+    Computes the optimal values for the parameters required by the JMARS model using lbfgs
+    """
     global counter
 
     #params = [v_u, b_u, theta_u, v_m, b_m, theta_m, M_a]
