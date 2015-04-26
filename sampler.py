@@ -36,8 +36,9 @@ def aspect_sentiment_probability(s, u, m, a):
 def aggregate_sentiment_probability(s, u, m):
     """
     """
-    # TODO: Code this
-    return 0
+    rum = predicted_rating(u,m)
+    prob_sum = 1.0 / (1.0 + np.exp(-s*(c*rum - b)))
+    return prob_sum
 
 def sample_multiple_indices(p):
     """
