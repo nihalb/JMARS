@@ -15,6 +15,7 @@ MAX_OPT_ITER = 10
 
 def main():
     """
+    Main function
     """
     # Download data for NLTK if not already done
     #nltk.download('all')
@@ -45,7 +46,7 @@ def main():
         for i in xrange(1,MAX_OPT_ITER+1):
             optimizer()
 
-    #Output Predicted Ratings
+    # Output Predicted Ratings
     for u in range(U):
         for m in range(M):
             pred_rate = predicted_rating(u, m)
