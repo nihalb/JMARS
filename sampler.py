@@ -119,7 +119,6 @@ class GibbsSampler:
     def _conditional_distribution(self, u, m, w):
         """
         """
-        # TODO: Add correct values of eta, gamma
         p_z = np.zeros((self.Y, self.Z, self.S))
 
         # y = 0
