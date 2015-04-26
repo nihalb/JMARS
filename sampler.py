@@ -19,10 +19,18 @@ def predicted_rating(u, m):
     r = v_u[u].dot(temp).dot(v_m[m].T) + b_o + b_u[u] + b_m[m]
     return r.sum()
 
+def predicted_aspect_rating(u, m, a):
+    """
+    """
+    temp = np.diag(M_a[a])
+    r = v_u[u].dot(temp).dot(v_m[m].T) + b_o + b_u[u] + b_m[m]
+    return r.sum()
+
 def aspect_sentiment_probability(s, u, m, a):
     """
     """
     # TODO: Code this
+    
     return 0
 
 def aggregate_sentiment_probability(s, u, m):
