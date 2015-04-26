@@ -106,7 +106,7 @@ class GibbsSampler:
                 self.cy[y] += 1
                 self.c += 1
                 self.cyw[y,w] += 1
-                self.cy[y,w] += 1
+                self.cy[y] += 1
                 self.cysw[y,s,w] += 1
                 self.cys[y,s] += 1
                 self.cyzw[y,z,w] += 1
@@ -173,7 +173,7 @@ class GibbsSampler:
                     self.cy[y] -= 1
                     self.c -= 1
                     self.cyw[y,w] -= 1
-                    self.cy[y,w] -= 1
+                    self.cy[y] -= 1
                     self.cysw[y,s,w] -= 1
                     self.cys[y,s] -= 1
                     self.cyzw[y,z,w] -= 1
@@ -191,7 +191,7 @@ class GibbsSampler:
                     self.cy[y] += 1
                     self.c += 1
                     self.cyw[y,w] += 1
-                    self.cy[y,w] += 1
+                    self.cy[y] += 1
                     self.cysw[y,s,w] += 1
                     self.cys[y,s] += 1
                     self.cyzw[y,z,w] += 1

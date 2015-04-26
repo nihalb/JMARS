@@ -39,7 +39,7 @@ def main():
     for it in xrange(1,MAX_ITER+1):
         logging.info('Running iteration %d of Gibbs EM' % it)
         logging.info('Running E-Step - Gibbs Sampling')
-        gibbs_sampler = GibbsSampler(len(y),len(z),len(s))
+        gibbs_sampler = GibbsSampler(5,A,2)
         gibbs_sampler.run(rating_matrix)
         logging.info('Running M-Step - Gradient Descent')
         for i in xrange(1,MAX_OPT_ITER+1):
